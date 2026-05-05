@@ -9,17 +9,16 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CompraE2ETest {
 
-    private static WebDriver driver;
-    private static LoginPage loginPage;
-    private static InventoryPage inventoryPage;
-    private static CartPage cartPage;
-    private static CheckoutPage checkoutPage;
+    private WebDriver driver;
+    private LoginPage loginPage;
+    private InventoryPage inventoryPage;
+    private CartPage cartPage;
+    private CheckoutPage checkoutPage;
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -33,35 +32,27 @@ public class CompraE2ETest {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("Deve fazer login com sucesso")
-    void deveLogar() {
+    @DisplayName("Deve realizar fluxo completo de compra")
+    void deveRealizarCompraCompleta() {
+        // Login
         loginPage.abrirPagina();
         loginPage.fazerLogin("standard_user", "secret_sauce");
         assertEquals("Products", inventoryPage.obterTituloPagina());
-    }
 
-    @Test
-    @Order(2)
-    @DisplayName("Deve adicionar produto ao carrinho")
-    void deveAdicionarProduto() {
+        // Adicionar produto ao carrinho
         inventoryPage.adicionarProdutoAoCarrinho();
         inventoryPage.irParaCarrinho();
         assertEquals(1, cartPage.obterQuantidadeItens());
-    }
 
-    @Test
-    @Order(3)
-    @DisplayName("Deve finalizar a compra com sucesso")
-    void deveFinalizarCompra() {
+        // Finalizar compra
         cartPage.irParaCheckout();
         checkoutPage.preencherDados("Teste", "Usuario", "12345");
         checkoutPage.finalizarCompra();
         assertEquals("Thank you for your order!", checkoutPage.obterMensagemSucesso());
     }
 
-    @AfterAll
-    static void tearDown() {
+    @AfterEach
+    void tearDown() {
         if (driver != null) {
             driver.quit();
         }
