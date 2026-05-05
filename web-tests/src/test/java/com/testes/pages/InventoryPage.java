@@ -2,9 +2,11 @@ package com.testes.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
+import java.util.List;
 
 // Representa a página de produtos do SauceDemo
 public class InventoryPage {
@@ -12,9 +14,8 @@ public class InventoryPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    private By botaoAdicionarProduto = By.cssSelector("[data-test='add-to-cart-sauce-labs-backpack']");
     private By tituloPagina = By.className("title");
-    private By badgeCarrinho = By.cssSelector(".shopping_cart_badge");
+    private By botoesAdicionarProduto = By.className("btn_inventory");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
@@ -27,14 +28,13 @@ public class InventoryPage {
     }
 
     public void adicionarProdutoAoCarrinho() {
-        wait.until(ExpectedConditions.elementToBeClickable(botaoAdicionarProduto));
-        driver.findElement(botaoAdicionarProduto).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(badgeCarrinho));
+        // Espera os botões aparecerem e clica no primeiro
+        wait.until(ExpectedConditions.visibilityOfElementLocated(botoesAdicionarProduto));
+        List<WebElement> botoes = driver.findElements(botoesAdicionarProduto);
+        botoes.get(0).click();
     }
 
-    // Navega diretamente para o carrinho via URL
     public void irParaCarrinho() {
         driver.get("https://www.saucedemo.com/cart.html");
-        wait.until(ExpectedConditions.urlContains("cart"));
     }
 }
