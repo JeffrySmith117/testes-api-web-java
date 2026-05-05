@@ -22,4 +22,7 @@ public class LoginPage {
 
     public void fazerLogin(String usuario, String senha) {
         driver.findElement(campoUsuario).sendKeys(usuario);
-        driver.findElement(ca
+        driver.findElement(campoSenha).sendKeys(senha);
+        driver.findElement(botaoLogin).click();
+    }
+}
