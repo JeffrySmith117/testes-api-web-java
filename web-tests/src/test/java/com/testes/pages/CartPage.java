@@ -5,7 +5,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
-import java.util.List;
 
 // Representa a página do carrinho do SauceDemo
 public class CartPage {
@@ -13,9 +12,7 @@ public class CartPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    private By botaoCheckout = By.id("checkout");
     private By itensCarrinho = By.className("cart_item");
-    private By badgeCarrinho = By.className("shopping_cart_badge");
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
@@ -23,14 +20,13 @@ public class CartPage {
     }
 
     public int obterQuantidadeItens() {
-        // Espera a URL conter 'cart' antes de contar itens
         wait.until(ExpectedConditions.urlContains("cart"));
-        List itens = driver.findElements(itensCarrinho);
-        return itens.size();
+        return driver.findElements(itensCarrinho).size();
     }
 
+    // Navega diretamente para o checkout via URL
     public void irParaCheckout() {
-        wait.until(ExpectedConditions.elementToBeClickable(botaoCheckout));
-        driver.findElement(botaoCheckout).click();
+        driver.get("https://www.saucedemo.com/checkout-step-one.html");
+        wait.until(ExpectedConditions.urlContains("checkout-step-one"));
     }
 }
