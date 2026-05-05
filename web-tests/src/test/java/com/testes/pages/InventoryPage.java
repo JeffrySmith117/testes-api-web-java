@@ -13,12 +13,12 @@ public class InventoryPage {
     private WebDriverWait wait;
 
     private By botaoAdicionarPrimeiroProduto = By.id("add-to-cart-sauce-labs-backpack");
-    private By iconeCarrinho = By.className("shopping_cart_link");
+    private By iconeCarrinho = By.cssSelector("a.shopping_cart_link");
     private By tituloPagina = By.className("title");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     public String obterTituloPagina() {
@@ -29,10 +29,13 @@ public class InventoryPage {
     public void adicionarProdutoAoCarrinho() {
         wait.until(ExpectedConditions.elementToBeClickable(botaoAdicionarPrimeiroProduto));
         driver.findElement(botaoAdicionarPrimeiroProduto).click();
+        // Espera o badge do carrinho aparecer confirmando que o produto foi adicionado
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("shopping_cart_badge")));
     }
 
     public void irParaCarrinho() {
         wait.until(ExpectedConditions.elementToBeClickable(iconeCarrinho));
         driver.findElement(iconeCarrinho).click();
+        wait.until(ExpectedConditions.urlContains("cart"));
     }
 }
