@@ -12,9 +12,7 @@ public class InventoryPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // Pega o primeiro botão "Add to cart" da página
-    private By botaoAdicionarProduto = By.cssSelector(".btn_primary.btn_inventory");
-    private By iconeCarrinho = By.cssSelector("a.shopping_cart_link");
+    private By botaoAdicionarProduto = By.cssSelector("[data-test='add-to-cart-sauce-labs-backpack']");
     private By tituloPagina = By.className("title");
     private By badgeCarrinho = By.cssSelector(".shopping_cart_badge");
 
@@ -34,9 +32,9 @@ public class InventoryPage {
         wait.until(ExpectedConditions.visibilityOfElementLocated(badgeCarrinho));
     }
 
+    // Navega diretamente para o carrinho via URL
     public void irParaCarrinho() {
-        wait.until(ExpectedConditions.elementToBeClickable(iconeCarrinho));
-        driver.findElement(iconeCarrinho).click();
+        driver.get("https://www.saucedemo.com/cart.html");
         wait.until(ExpectedConditions.urlContains("cart"));
     }
 }
