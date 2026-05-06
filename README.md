@@ -12,4 +12,10 @@ Projeto de automação de testes cobrindo testes de API REST e testes Web E2E.
 - JUnit 5
 - GitHub Actions (CI/CD)
 
+## 📁 Estrutura do Projeto# Automação de Testes - API e Web
+
+Projeto de automação de testes cobrindo testes de API REST e testes Web E2E, desenvolvido em Java.
+
+---
+
 ## 📁 Estrutura do Projeto

@@ -1,0 +1,5 @@
+com\testes\CompraE2ETest.class
+com\testes\pages\CartPage.class
+com\testes\pages\InventoryPage.class
+com\testes\pages\LoginPage.class
+com\testes\pages\CheckoutPage.class
