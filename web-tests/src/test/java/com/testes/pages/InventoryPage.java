@@ -1,6 +1,7 @@
 package com.testes.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -15,7 +16,6 @@ public class InventoryPage {
     private WebDriverWait wait;
 
     private By tituloPagina = By.className("title");
-    private By botoesAdicionarProduto = By.className("btn_inventory");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
@@ -28,10 +28,17 @@ public class InventoryPage {
     }
 
     public void adicionarProdutoAoCarrinho() {
-        // Espera os botões aparecerem e clica no primeiro
-        wait.until(ExpectedConditions.visibilityOfElementLocated(botoesAdicionarProduto));
-        List<WebElement> botoes = driver.findElements(botoesAdicionarProduto);
-        botoes.get(0).click();
+        // Espera a página carregar completamente
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
+        // Pega todos os botões e clica no primeiro via JavaScript
+        List<WebElement> botoes = driver.findElements(By.tagName("button"));
+        for (WebElement botao : botoes) {
+            String texto = botao.getText().toLowerCase();
+            if (texto.contains("add to cart") || texto.contains("add")) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", botao);
+                break;
+            }
+        }
     }
 
     public void irParaCarrinho() {
