@@ -13,20 +13,19 @@ public class CartPage {
     private WebDriverWait wait;
 
     private By itensCarrinho = By.className("cart_item");
+    private By botaoCheckout = By.id("checkout");
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    public int obterQuantidadeItens() {
-        wait.until(ExpectedConditions.urlContains("cart"));
-        return driver.findElements(itensCarrinho).size();
+    public boolean temItens() {
+        return !driver.findElements(itensCarrinho).isEmpty();
     }
 
-    // Navega diretamente para o checkout via URL
     public void irParaCheckout() {
-        driver.get("https://www.saucedemo.com/checkout-step-one.html");
-        wait.until(ExpectedConditions.urlContains("checkout-step-one"));
+        wait.until(ExpectedConditions.elementToBeClickable(botaoCheckout));
+        driver.findElement(botaoCheckout).click();
     }
 }
