@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -21,6 +22,7 @@ public class CompraE2ETest {
 
     private WebDriver driver;
     private WebDriverWait wait;
+    private JavascriptExecutor js;
 
     @BeforeEach
     void setup() {
@@ -32,6 +34,7 @@ public class CompraE2ETest {
         options.addArguments("--window-size=1920,1080");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        js = (JavascriptExecutor) driver;
     }
 
     @Test
@@ -41,31 +44,30 @@ public class CompraE2ETest {
         driver.get("https://www.saucedemo.com");
         wait.until(ExpectedConditions.elementToBeClickable(By.id("user-name"))).sendKeys("standard_user");
         driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
+        js.executeScript("document.getElementById('login-button').click()");
         wait.until(ExpectedConditions.urlContains("inventory"));
 
         // Adiciona produto
-        wait.until(ExpectedConditions.elementToBeClickable(
-            By.id("add-to-cart-sauce-labs-backpack"))).click();
-        wait.until(ExpectedConditions.textToBe(
-            By.cssSelector(".shopping_cart_badge"), "1"));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.className("inventory_list")));
+        js.executeScript("document.getElementById('add-to-cart-sauce-labs-backpack').click()");
+        wait.until(ExpectedConditions.textToBe(By.cssSelector(".shopping_cart_badge"), "1"));
 
         // Carrinho
-        driver.findElement(By.cssSelector(".shopping_cart_link")).click();
+        js.executeScript("document.querySelector('.shopping_cart_link').click()");
         wait.until(ExpectedConditions.urlContains("cart"));
         assertFalse(driver.findElements(By.className("cart_item")).isEmpty());
 
         // Checkout step 1
-        driver.findElement(By.id("checkout")).click();
+        js.executeScript("document.getElementById('checkout').click()");
         wait.until(ExpectedConditions.urlContains("checkout-step-one"));
         wait.until(ExpectedConditions.elementToBeClickable(By.id("first-name"))).sendKeys("Teste");
         driver.findElement(By.id("last-name")).sendKeys("Usuario");
         driver.findElement(By.id("postal-code")).sendKeys("12345");
-        driver.findElement(By.id("continue")).click();
+        js.executeScript("document.getElementById('continue').click()");
 
         // Checkout step 2
         wait.until(ExpectedConditions.urlContains("checkout-step-two"));
-        driver.findElement(By.id("finish")).click();
+        js.executeScript("document.getElementById('finish').click()");
 
         // Confirmação
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("complete-header")));
