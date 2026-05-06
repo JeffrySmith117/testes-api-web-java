@@ -37,6 +37,17 @@ public class CompraE2ETest {
         js = (JavascriptExecutor) driver;
     }
 
+    // Preenche campo React corretamente disparando eventos
+    private void setReactValue(String id, String value) {
+        js.executeScript(
+            "var el = document.getElementById(arguments[0]);" +
+            "var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;" +
+            "nativeInputValueSetter.call(el, arguments[1]);" +
+            "el.dispatchEvent(new Event('input', { bubbles: true }));" +
+            "el.dispatchEvent(new Event('change', { bubbles: true }));",
+            id, value);
+    }
+
     @Test
     @DisplayName("Fluxo completo: login, carrinho e compra")
     void deveRealizarCompraCompleta() {
@@ -60,13 +71,17 @@ public class CompraE2ETest {
         // Checkout step 1
         js.executeScript("document.getElementById('checkout').click()");
         wait.until(ExpectedConditions.urlContains("checkout-step-one"));
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("first-name"))).sendKeys("Teste");
-        driver.findElement(By.id("last-name")).sendKeys("Usuario");
-        driver.findElement(By.id("postal-code")).sendKeys("12345");
-        js.executeScript("document.getElementById('continue').click()");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first-name")));
 
-        // Checkout step 2
+        // Preenche campos via React
+        setReactValue("first-name", "Teste");
+        setReactValue("last-name", "Usuario");
+        setReactValue("postal-code", "12345");
+
+        js.executeScript("document.getElementById('continue').click()");
         wait.until(ExpectedConditions.urlContains("checkout-step-two"));
+
+        // Finaliza
         js.executeScript("document.getElementById('finish').click()");
 
         // Confirmação
