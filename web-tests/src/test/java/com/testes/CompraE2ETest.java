@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,16 +40,23 @@ public class CompraE2ETest {
         js = (JavascriptExecutor) driver;
     }
 
+    private void preencherCampo(String id, String valor) {
+        WebElement campo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(id)));
+        campo.clear();
+        campo.sendKeys(valor);
+    }
+
     @Test
     @DisplayName("Deve realizar fluxo completo de compra")
     void deveRealizarCompraCompleta() {
         // 1. Login
         driver.get("https://www.saucedemo.com/");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")));
-        driver.findElement(By.id("user-name")).sendKeys("standard_user");
-        driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        js.executeScript("arguments[0].click();", driver.findElement(By.id("login-button")));
+        preencherCampo("user-name", "standard_user");
+        preencherCampo("password", "secret_sauce");
+        driver.findElement(By.id("login-button")).click();
         wait.until(ExpectedConditions.urlContains("inventory"));
+        assertTrue(driver.getCurrentUrl().contains("inventory"));
 
         // 2. Adiciona produto
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
@@ -63,24 +71,21 @@ public class CompraE2ETest {
         wait.until(ExpectedConditions.urlContains("cart"));
         assertFalse(driver.findElements(By.className("cart_item")).isEmpty());
 
-        // 4. Clica em checkout via JS
-        WebElement btnCheckout = wait.until(
-            ExpectedConditions.presenceOfElementLocated(By.id("checkout")));
-        js.executeScript("arguments[0].click();", btnCheckout);
+        // 4. Checkout
+        js.executeScript("arguments[0].click();",
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("checkout"))));
         wait.until(ExpectedConditions.urlContains("checkout-step-one"));
 
-        // 5. Preenche dados via JS
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first-name")));
-        js.executeScript("document.getElementById('first-name').value='Teste'");
-        js.executeScript("document.getElementById('last-name').value='Usuario'");
-        js.executeScript("document.getElementById('postal-code').value='12345'");
-        js.executeScript("arguments[0].click();", driver.findElement(By.id("continue")));
+        // 5. Preenche dados usando sendKeys
+        preencherCampo("first-name", "Teste");
+        preencherCampo("last-name", "Usuario");
+        preencherCampo("postal-code", "12345");
+        driver.findElement(By.id("continue")).click();
         wait.until(ExpectedConditions.urlContains("checkout-step-two"));
 
         // 6. Finaliza
-        WebElement btnFinish = wait.until(
-            ExpectedConditions.presenceOfElementLocated(By.id("finish")));
-        js.executeScript("arguments[0].click();", btnFinish);
+        js.executeScript("arguments[0].click();",
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("finish"))));
 
         // 7. Verifica sucesso
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("complete-header")));
