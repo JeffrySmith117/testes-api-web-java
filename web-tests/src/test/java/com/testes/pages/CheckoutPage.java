@@ -1,7 +1,9 @@
 package com.testes.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
@@ -21,14 +23,18 @@ public class CheckoutPage {
 
     public CheckoutPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     public void preencherDados(String nome, String sobrenome, String cep) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(campoNome));
-        driver.findElement(campoNome).sendKeys(nome);
-        driver.findElement(campoSobrenome).sendKeys(sobrenome);
-        driver.findElement(campoCep).sendKeys(cep);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        WebElement campoNomeEl = driver.findElement(campoNome);
+        js.executeScript("arguments[0].value=arguments[1]", campoNomeEl, nome);
+        WebElement campoSobrenomeEl = driver.findElement(campoSobrenome);
+        js.executeScript("arguments[0].value=arguments[1]", campoSobrenomeEl, sobrenome);
+        WebElement campoCepEl = driver.findElement(campoCep);
+        js.executeScript("arguments[0].value=arguments[1]", campoCepEl, cep);
         driver.findElement(botaoContinuar).click();
     }
 
