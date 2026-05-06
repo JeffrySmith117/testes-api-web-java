@@ -14,12 +14,16 @@ public class InventoryPage {
 
     private WebDriver driver;
     private WebDriverWait wait;
+    private JavascriptExecutor js;
 
     private By tituloPagina = By.className("title");
+    private By listaInventario = By.className("inventory_list");
+    private By iconeCarrinho = By.id("shopping_cart_container");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        this.js = (JavascriptExecutor) driver;
     }
 
     public String obterTituloPagina() {
@@ -28,20 +32,23 @@ public class InventoryPage {
     }
 
     public void adicionarProdutoAoCarrinho() {
-        // Espera a página carregar completamente
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
-        // Pega todos os botões e clica no primeiro via JavaScript
+        wait.until(ExpectedConditions.visibilityOfElementLocated(listaInventario));
         List<WebElement> botoes = driver.findElements(By.tagName("button"));
         for (WebElement botao : botoes) {
             String texto = botao.getText().toLowerCase();
-            if (texto.contains("add to cart") || texto.contains("add")) {
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", botao);
+            if (texto.contains("add")) {
+                js.executeScript("arguments[0].click();", botao);
+                // Espera o badge aparecer
+                wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("#shopping_cart_container .shopping_cart_badge")));
                 break;
             }
         }
     }
 
     public void irParaCarrinho() {
-        driver.get("https://www.saucedemo.com/cart.html");
+        WebElement carrinho = driver.findElement(iconeCarrinho);
+        js.executeScript("arguments[0].click();", carrinho);
+        wait.until(ExpectedConditions.urlContains("cart"));
     }
 }
