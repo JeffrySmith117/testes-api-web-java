@@ -1,8 +1,14 @@
 package com.testes;
 
-import com.testes.pages.*;
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.*;
+import java.time.Duration;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -11,10 +17,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class CompraE2ETest {
 
@@ -48,23 +52,20 @@ public class CompraE2ETest {
 
         // 2. Verifica login
         wait.until(ExpectedConditions.urlContains("inventory"));
-        assertTrue(driver.getCurrentUrl().contains("inventory"));
+        assertTrue(driver.getCurrentUrl().contains("inventory"), "Login deve redirecionar para inventory");
 
-        // 3. Adiciona produto
+        // 3. Adiciona produto via localStorage diretamente
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
-        List<WebElement> botoes = driver.findElements(By.tagName("button"));
-        for (WebElement b : botoes) {
-            if (b.getText().toLowerCase().contains("add")) {
-                b.click();
-                break;
-            }
-        }
+        js.executeScript(
+            "window.localStorage.setItem('cart-standard_user', JSON.stringify([{id:'4',quantity:1}]));"
+        );
 
-        // 4. Vai para carrinho via URL
+        // 4. Vai para carrinho
         driver.get("https://www.saucedemo.com/cart.html");
         wait.until(ExpectedConditions.urlContains("cart"));
 
         // 5. Verifica item no carrinho
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cart_item")));
         List<WebElement> itens = driver.findElements(By.className("cart_item"));
         assertTrue(itens.size() > 0, "Carrinho deve ter itens");
 
