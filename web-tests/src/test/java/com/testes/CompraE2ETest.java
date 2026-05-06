@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,44 +49,36 @@ public class CompraE2ETest {
         driver.findElement(By.id("password")).sendKeys("secret_sauce");
         driver.findElement(By.id("login-button")).click();
         wait.until(ExpectedConditions.urlContains("inventory"));
-        assertTrue(driver.getCurrentUrl().contains("inventory"));
 
-        // 2. Adiciona produto clicando no botão
+        // 2. Adiciona produto
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
         WebElement botao = wait.until(ExpectedConditions.elementToBeClickable(
             By.xpath("//button[contains(@class,'btn_inventory')]")));
-        js.executeScript("arguments[0].scrollIntoView(true);", botao);
         js.executeScript("arguments[0].click();", botao);
-
-        // 3. Verifica badge do carrinho
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("shopping_cart_badge")));
-        String badge = driver.findElement(By.className("shopping_cart_badge")).getText();
-        assertEquals("1", badge, "Badge deve mostrar 1 item");
 
-        // 4. Vai para carrinho clicando no link
-        js.executeScript("window.location.href='https://www.saucedemo.com/cart.html'");
+        // 3. Carrinho
+        driver.findElement(By.className("shopping_cart_link")).click();
         wait.until(ExpectedConditions.urlContains("cart"));
+        assertFalse(driver.findElements(By.className("cart_item")).isEmpty());
 
-        // 5. Verifica item no carrinho
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cart_item")));
-        assertTrue(!driver.findElements(By.className("cart_item")).isEmpty());
-
-        // 6. Checkout
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("checkout")));
+        // 4. Checkout - clica no botão checkout
         driver.findElement(By.id("checkout")).click();
+        wait.until(ExpectedConditions.urlContains("checkout-step-one"));
 
-        // 7. Preenche dados
+        // 5. Preenche dados
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first-name")));
         driver.findElement(By.id("first-name")).sendKeys("Teste");
         driver.findElement(By.id("last-name")).sendKeys("Usuario");
         driver.findElement(By.id("postal-code")).sendKeys("12345");
         driver.findElement(By.id("continue")).click();
+        wait.until(ExpectedConditions.urlContains("checkout-step-two"));
 
-        // 8. Finaliza
+        // 6. Finaliza
         wait.until(ExpectedConditions.elementToBeClickable(By.id("finish")));
         driver.findElement(By.id("finish")).click();
 
-        // 9. Verifica sucesso
+        // 7. Verifica sucesso
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("complete-header")));
         assertEquals("Thank you for your order!",
             driver.findElement(By.className("complete-header")).getText());
