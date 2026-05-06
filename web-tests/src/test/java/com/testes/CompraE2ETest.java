@@ -1,7 +1,6 @@
 package com.testes;
 
 import java.time.Duration;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,25 +48,28 @@ public class CompraE2ETest {
         driver.findElement(By.id("user-name")).sendKeys("standard_user");
         driver.findElement(By.id("password")).sendKeys("secret_sauce");
         driver.findElement(By.id("login-button")).click();
-
-        // 2. Verifica login
         wait.until(ExpectedConditions.urlContains("inventory"));
-        assertTrue(driver.getCurrentUrl().contains("inventory"), "Login deve redirecionar para inventory");
+        assertTrue(driver.getCurrentUrl().contains("inventory"));
 
-        // 3. Adiciona produto via localStorage diretamente
+        // 2. Adiciona produto clicando no botão
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
-        js.executeScript(
-            "window.localStorage.setItem('cart-standard_user', JSON.stringify([{id:'4',quantity:1}]));"
-        );
+        WebElement botao = wait.until(ExpectedConditions.elementToBeClickable(
+            By.xpath("//button[contains(@class,'btn_inventory')]")));
+        js.executeScript("arguments[0].scrollIntoView(true);", botao);
+        js.executeScript("arguments[0].click();", botao);
 
-        // 4. Vai para carrinho
-        driver.get("https://www.saucedemo.com/cart.html");
+        // 3. Verifica badge do carrinho
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("shopping_cart_badge")));
+        String badge = driver.findElement(By.className("shopping_cart_badge")).getText();
+        assertEquals("1", badge, "Badge deve mostrar 1 item");
+
+        // 4. Vai para carrinho clicando no link
+        js.executeScript("window.location.href='https://www.saucedemo.com/cart.html'");
         wait.until(ExpectedConditions.urlContains("cart"));
 
         // 5. Verifica item no carrinho
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cart_item")));
-        List<WebElement> itens = driver.findElements(By.className("cart_item"));
-        assertTrue(itens.size() > 0, "Carrinho deve ter itens");
+        assertTrue(!driver.findElements(By.className("cart_item")).isEmpty());
 
         // 6. Checkout
         wait.until(ExpectedConditions.elementToBeClickable(By.id("checkout")));
@@ -86,8 +88,8 @@ public class CompraE2ETest {
 
         // 9. Verifica sucesso
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("complete-header")));
-        String mensagem = driver.findElement(By.className("complete-header")).getText();
-        assertEquals("Thank you for your order!", mensagem);
+        assertEquals("Thank you for your order!",
+            driver.findElement(By.className("complete-header")).getText());
     }
 
     @AfterEach
