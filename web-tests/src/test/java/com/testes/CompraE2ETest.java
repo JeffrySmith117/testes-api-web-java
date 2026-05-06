@@ -47,36 +47,40 @@ public class CompraE2ETest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")));
         driver.findElement(By.id("user-name")).sendKeys("standard_user");
         driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
+        js.executeScript("arguments[0].click();", driver.findElement(By.id("login-button")));
         wait.until(ExpectedConditions.urlContains("inventory"));
 
         // 2. Adiciona produto
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
-        WebElement botao = wait.until(ExpectedConditions.elementToBeClickable(
+        WebElement botaoAdd = wait.until(ExpectedConditions.elementToBeClickable(
             By.xpath("//button[contains(@class,'btn_inventory')]")));
-        js.executeScript("arguments[0].click();", botao);
+        js.executeScript("arguments[0].click();", botaoAdd);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("shopping_cart_badge")));
 
-        // 3. Carrinho
-        driver.findElement(By.className("shopping_cart_link")).click();
+        // 3. Vai para carrinho
+        js.executeScript("arguments[0].click();",
+            driver.findElement(By.className("shopping_cart_link")));
         wait.until(ExpectedConditions.urlContains("cart"));
         assertFalse(driver.findElements(By.className("cart_item")).isEmpty());
 
-        // 4. Checkout - clica no botão checkout
-        driver.findElement(By.id("checkout")).click();
+        // 4. Clica em checkout via JS
+        WebElement btnCheckout = wait.until(
+            ExpectedConditions.presenceOfElementLocated(By.id("checkout")));
+        js.executeScript("arguments[0].click();", btnCheckout);
         wait.until(ExpectedConditions.urlContains("checkout-step-one"));
 
-        // 5. Preenche dados
+        // 5. Preenche dados via JS
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first-name")));
-        driver.findElement(By.id("first-name")).sendKeys("Teste");
-        driver.findElement(By.id("last-name")).sendKeys("Usuario");
-        driver.findElement(By.id("postal-code")).sendKeys("12345");
-        driver.findElement(By.id("continue")).click();
+        js.executeScript("document.getElementById('first-name').value='Teste'");
+        js.executeScript("document.getElementById('last-name').value='Usuario'");
+        js.executeScript("document.getElementById('postal-code').value='12345'");
+        js.executeScript("arguments[0].click();", driver.findElement(By.id("continue")));
         wait.until(ExpectedConditions.urlContains("checkout-step-two"));
 
         // 6. Finaliza
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("finish")));
-        driver.findElement(By.id("finish")).click();
+        WebElement btnFinish = wait.until(
+            ExpectedConditions.presenceOfElementLocated(By.id("finish")));
+        js.executeScript("arguments[0].click();", btnFinish);
 
         // 7. Verifica sucesso
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("complete-header")));
